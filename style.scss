@@ -32,14 +32,13 @@
 .btn-load-json {
   appearance: none;
   display: block;
-  
+
   .fake-btn {
     display: inline-block;
     padding: 16px;
     transition: 1s;
     background-color: chocolate;
     transform: scale(1);
-
   }
 
   &:hover {
@@ -66,11 +65,50 @@
     transform: rotate(0deg);
     font-size: small;
   }
+
   50% {
     font-size: xx-large;
   }
+
   100% {
     transform: rotate(360deg);
     font-size: small;
   }
+}
+
+[hidden] {
+  display: none;
+}
+
+li {
+  background-color: #242424;
+}
+
+ol,
+ul {
+  padding-left: 20px;
+}
+
+.key {
+  color: #4E9590;
+}
+
+ul>li {
+  list-style: none;
+}
+
+ol {
+  list-style-type: none;
+  counter-reset: index -1;
+}
+
+ol>li {
+  position: relative;
+}
+
+ol>li::before {
+  content: counter(index) ": ";
+  counter-increment: index;
+  position: absolute;
+  left: -1.5em;
 }
