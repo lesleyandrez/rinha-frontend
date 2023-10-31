@@ -5,5 +5,4 @@ self.onmessage = (event) => {
     } catch (error) {
         self.postMessage(error);
     }
-
 }
