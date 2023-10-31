@@ -3,15 +3,18 @@ function escapeHTML(input) {
     return replace.reduce((escaped, replacement) => escaped.replaceAll(...replacement), input)
 }
 
-function formatObject(input) {
+function formatObject(input, index) {
     if (input === null) return '<span class="null">null</span>'
 
+    const withDetail = index !== undefined;
+
     let output = `
-    <details open>
-        <summary> &nbsp; </summary>
-        <ul>
+    ${withDetail ? `<details class="object-in-array" open>
+    <summary> ${index}: <span class="braces"></span> </summary>
+    <ul>
+    ` : '<ul>'}
     `
-    output += Object.keys(input).map((key) => {
+    output += Object.keys(input).map((key, __index) => {
         const isArray = Array.isArray(input[key]);
         const isObject = typeof input[key] === 'object' && input[key] !== null;
 
@@ -21,7 +24,8 @@ function formatObject(input) {
                 <details open>
                     <summary>
                         <span class="key">${escapeHTML(key)}:</span>
-                        <span class="brackets">[</span>
+                        ${(isObject && !isArray) ? '<span class="braces"></span>' : ''}
+                        ${isArray ? '<span class="brackets">[</span>' : ''}
                     </summary>
                     ${format(input[key])}
                 </details>
@@ -39,51 +43,87 @@ function formatObject(input) {
 
     output += `
         </ul>
-    </details>
+    ${withDetail ? '</details>' : ''}
     `
     return output
 }
 
-function formatArray(input) {
+function formatArray(input, _index) {
     let output = ''
+
     output += `<ol start="0">`
-    output += input.map((value, index, list) => {
-        return `<li>${format(value, index)}</li>`
-    }).join('')
+    for (let index = 0; index < 100; index++) {
+        const value = input[index];
+        if (value === undefined) break;
+        // output += input.map((value, index) => {
+        if (!Array.isArray(value)) {
+            // return `<li>${format(value, index)}</li>`
+            output += `<li>${format(value, index)}</li>`
+            continue;
+        }
+
+        // return `
+        const indexHTML = index !== undefined ? `<span class="index"> ${index}: </span>` : '';
+        output += `
+        <li>
+            <details open>
+                <summary>
+                    ${indexHTML}
+                    <span class="key"></span>
+                    <span class="brackets">[</span>
+                </summary>
+                ${format(value, index)}
+            </details>
+        </li>
+        `;
+        // }).join('')
+    }
     output += `</ol>`
     output += `<span class="brackets">]</span>`
     return output
 }
 
-function formatString(input) {
+function formatString(input, index) {
+
+    const indexHTML = index !== undefined ? `<span> ${index}: </span>` : '';
+
     return `
+        ${indexHTML}
         <span class="string">
             <span class="string_quotes">\"</span>${escapeHTML(input)}<span class="string_quotes">\"</span>
         </span>`;
 }
 
-function formatBoolean(input) {
-    return `<span class="${input}">${input}</span>`;
+function formatBoolean(input, index) {
+    const indexHTML = index !== undefined ? `<span class="index"> ${index}: </span>` : '';
+    return `
+        ${indexHTML}
+        <span class="${input}">${input}</span>
+    `;
 }
 
-function formatNumber(input) {
-    return `<span class="number">${input}</span>`;
+function formatNumber(input, index) {
+    const indexHTML = index !== undefined ? `<span class="index"> ${index}: </span>` : '';
+    return `
+        ${indexHTML}
+        <span class="number">${input}</span>
+    `;
 }
 
-export function format(input) {
+export function format(input, index) {
     const type = Array.isArray(input) ? 'array' : typeof input
 
     switch (type) {
         case 'object':
-            return formatObject(input)
+            return formatObject(input, index)
         case 'array':
-            return formatArray(input)
+            return formatArray(input, index)
         case 'string':
-            return formatString(input)
+            return formatString(input, index)
         case 'boolean':
-            return formatBoolean(input)
+            return formatBoolean(input, index)
         case 'number':
-            return formatNumber(input)
+            return formatNumber(input, index)
         default:
             return input
     }

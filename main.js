@@ -1,9 +1,16 @@
+import { format } from './format';
+import { allTypes } from './model';
 import './style.scss'
 
 const w = new Worker('worker.js');
 
 w.onmessage = (algo) => {
-    console.log({ json: algo.data });
+    const $wellcome = document.querySelector('.wellcome');
+    $wellcome.hidden  = true;
+
+    const $viewer = document.querySelector('.viewer');
+
+    $viewer.insertAdjacentHTML('beforeend', format(algo.data));
 }
 
 const $inputFile = document.getElementById('input-file');

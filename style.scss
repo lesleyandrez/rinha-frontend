@@ -4,8 +4,8 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: #000;
+  background-color: #FFF;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -81,7 +81,7 @@
 }
 
 li {
-  background-color: #242424;
+  // background-color: #242424;
 }
 
 ol,
@@ -106,9 +106,48 @@ ol>li {
   position: relative;
 }
 
-ol>li::before {
-  content: counter(index) ": ";
-  counter-increment: index;
-  position: absolute;
-  left: -1.5em;
+ol>li:before {
+  // content: counter(index) ": ";
+  // counter-increment: index;
+  // position: absolute;
+  // left: -1.2em;
+}
+
+details:not([open]) .brackets {
+  &:after {
+    content: '...]';
+  }
+}
+
+details.object-in-array:not([open]) .braces,
+details:not([open]) .braces {
+  &:after {
+    content: '{...}';
+    color: #F2CAB8;
+    font-weight: bold;
+  }
+}
+
+details>summary {
+  list-style: none;
+}
+
+details>summary::-webkit-details-marker {
+  display: none;
+}
+
+ol, ul {
+  border-left: 1px solid #BFBFBF;
+}
+
+.brackets {
+  color: #F2CAB8;
+  font-weight: bold;
+}
+.object-in-array>summary {
+  color: #BFBFBF;
+}
+
+.index {
+  color: #BFBFBF;
 }
