@@ -1,3 +1,29 @@
+const tamanhoPagina = 1000;
+let isLarge = null;
+
+document.addEventListener('click', (event) => {
+    const $target = event.target;
+    if ($target.tagName === 'BUTTON' && $target.id) {
+        const ref = {
+            id: $target.id,
+            lastIndex: $target.dataset.lastIndex,
+            input: window.store.um,
+        };
+
+        console.log(ref);
+        const $lastItemRendered = $target.parentElement.previousElementSibling;
+
+        $target.parentElement.insertAdjacentHTML('beforebegin', format(window.store.um, undefined, +ref.lastIndex + 1))
+        $lastItemRendered.nextElementSibling.querySelector('summary')?.focus();
+        $target.dataset.lastIndex = +$target.dataset.lastIndex + tamanhoPagina;
+
+        console.log(+$target.dataset.lastIndex, window.store.um.length);
+        if (+$target.dataset.lastIndex + 1 >= window.store.um.length) {
+            $target.remove();
+        }
+    }
+});
+
 function escapeHTML(input) {
     const replace = [['&', '&amp;'], ['<', '&lt;'], ['>', '&gt;'], ['"', '&quot;'], ["'", '&#039;']]
     return replace.reduce((escaped, replacement) => escaped.replaceAll(...replacement), input)
@@ -8,8 +34,13 @@ function formatObject(input, index) {
 
     const withDetail = index !== undefined;
 
+    if (isLarge === null) {
+        const $nameOfJSON = document.querySelector('.viewer h2');
+        isLarge = $nameOfJSON.dataset.isLarge === 'true';
+    }
+
     let output = `
-    ${withDetail ? `<details class="object-in-array" open>
+    ${withDetail ? `<details class="object-in-array" ${isLarge ? '' : 'open'}>
     <summary> ${index}: <span class="braces"></span> </summary>
     <ul>
     ` : '<ul>'}
@@ -18,12 +49,14 @@ function formatObject(input, index) {
         const isArray = Array.isArray(input[key]);
         const isObject = typeof input[key] === 'object' && input[key] !== null;
 
+        const isRootArray = key === '';
+
         if (isArray || isObject) {
             return `
             <li>
                 <details open>
                     <summary>
-                        <span class="key">${escapeHTML(key)}:</span>
+                        ${isRootArray ? '' : `<span class="key">${escapeHTML(key)}:</span>`}
                         ${(isObject && !isArray) ? '<span class="braces"></span>' : ''}
                         ${isArray ? '<span class="brackets">[</span>' : ''}
                     </summary>
@@ -48,21 +81,33 @@ function formatObject(input, index) {
     return output
 }
 
-function formatArray(input, _index) {
+function formatArray(input, _index, startWith = 0) {
     let output = ''
 
-    output += `<ol start="0">`
-    for (let index = 0; index < 100; index++) {
+    if (startWith === 0) {
+        output += `<ol start="0">`
+    }
+
+    const tamanhoTotal = input.length;
+    let temMaisItens = false;
+    if (tamanhoPagina < tamanhoTotal) {
+        temMaisItens = true;
+    }
+
+    for (let index = startWith; index < (tamanhoPagina + startWith); index++) {
         const value = input[index];
         if (value === undefined) break;
-        // output += input.map((value, index) => {
         if (!Array.isArray(value)) {
-            // return `<li>${format(value, index)}</li>`
             output += `<li>${format(value, index)}</li>`
+            if (temMaisItens && index === tamanhoPagina - 1) {
+                window.store = {
+                    um: input,
+                };
+                output += `<li><button id="${'um'}" data-last-index="${index}"> Carregar mais...</button></li>`;
+            }
             continue;
         }
 
-        // return `
         const indexHTML = index !== undefined ? `<span class="index"> ${index}: </span>` : '';
         output += `
         <li>
@@ -76,16 +121,16 @@ function formatArray(input, _index) {
             </details>
         </li>
         `;
-        // }).join('')
     }
-    output += `</ol>`
-    output += `<span class="brackets">]</span>`
+    if (startWith === 0) {
+        output += `</ol>`
+        output += `<span class="brackets">]</span>`
+    }
     return output
 }
 
 function formatString(input, index) {
-
-    const indexHTML = index !== undefined ? `<span> ${index}: </span>` : '';
+    const indexHTML = index !== undefined ? `<span class="index"> ${index}: </span>` : '';
 
     return `
         ${indexHTML}
@@ -110,14 +155,14 @@ function formatNumber(input, index) {
     `;
 }
 
-export function format(input, index) {
+export function format(input, index, startWith) {
     const type = Array.isArray(input) ? 'array' : typeof input
 
     switch (type) {
         case 'object':
             return formatObject(input, index)
         case 'array':
-            return formatArray(input, index)
+            return formatArray(input, index, startWith)
         case 'string':
             return formatString(input, index)
         case 'boolean':

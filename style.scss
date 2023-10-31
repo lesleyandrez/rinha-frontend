@@ -1,5 +1,5 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -20,6 +20,10 @@
   box-sizing: border-box;
 }
 
+h1 {
+  font-size: 2em;
+}
+
 .wellcome {
   height: 100vh;
   width: 100vw;
@@ -27,6 +31,22 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  padding: 16px;
+  text-align: center;
+  gap: 16px;
+}
+
+.viewer {
+  padding: 16px;
+
+  &>ol, &>ul {
+    border-left: none;
+    padding-left: 0;
+  }
+}
+
+.msg-invalid-json {
+  color: #BF0E0E;
 }
 
 .btn-load-json {
@@ -35,15 +55,18 @@
 
   .fake-btn {
     display: inline-block;
-    padding: 16px;
-    transition: 1s;
-    background-color: chocolate;
+    padding: 4px 8px;
+    border-radius: 5px;
+    border: 1px solid #000;
+    background-image: linear-gradient(to bottom, rgba(0,0,0,.1), transparent);
     transform: scale(1);
+    font-size: 0.8em;
+    font-weight: 700;
   }
 
-  &:hover {
+  &:active {
     .fake-btn {
-      transform: scale(1.2);
+      transform: scale(0.98);
     }
   }
 
@@ -106,13 +129,6 @@ ol>li {
   position: relative;
 }
 
-ol>li:before {
-  // content: counter(index) ": ";
-  // counter-increment: index;
-  // position: absolute;
-  // left: -1.2em;
-}
-
 details:not([open]) .brackets {
   &:after {
     content: '...]';
@@ -150,4 +166,12 @@ ol, ul {
 
 .index {
   color: #BFBFBF;
+}
+
+details {
+  content-visibility: auto;
+}
+
+button {
+  padding: 4px 8px;
 }

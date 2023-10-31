@@ -12,5 +12,8 @@
   "devDependencies": {
     "sass": "^1.69.3",
     "vite": "^4.4.5"
+  },
+  "dependencies": {
+    "object-hash": "^3.0.0"
   }
 }
